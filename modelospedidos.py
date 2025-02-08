@@ -237,9 +237,13 @@ class Pedido(models.Model):
 
     def registrar_informacion(self, numero_mesa):
         if numero_mesa == 0:
-            self.informacion = f"| Nombre: {self.cliente.nombre} | Fecha: {self.fecha_actual} | Pedido: {self.numero} | Para Llevar: {self.cliente.is_es_para_llevar()} | Total: {self.calcular_total()} |"
+
+            self.informacion = f"| Nombre: {self.cliente.nombre} | Fecha: {self.fecha_actual} | Pedido: {self.numero} | Para Llevar: {self.cliente.es_para_llevar} | Total: {self.calcular_total()} |"
+
         else:
-            self.informacion = f"| Nombre: {self.cliente.nombre} | Fecha: {self.fecha_actual} | Pedido: {self.numero} | Nro.Personas: {self.cliente.get_cantidad_personas()} | Para Llevar: {self.cliente.is_es_para_llevar()} | Mesa: {numero_mesa} | Total: {self.calcular_total()} |"
+
+            self.informacion = f"| Nombre: {self.cliente.nombre} | Fecha: {self.fecha_actual} | Pedido: {self.numero} | Nro.Personas: {self.cliente.cantidad_persona} | Para Llevar: {self.cliente.es_para_llevar} | Mesa: {numero_mesa} | Total: {self.calcular_total()} |"
+
 
     def remover_item(self, item_pedido):
         if item_pedido in self.item_pedido_list.all():
@@ -276,9 +280,8 @@ class Restaurante(InteraccionCliente):
     nombre = models.CharField(max_length=50)
     #Asociacion:
     empleados = models.ManyToManyField(Empleado, blank=True)
-    clientes = models.ManyToManyField(Cliente, blank=True)
-    meseros = models.ManyToManyField(Mesero, blank=True)
     personal_cocina_list = models.ManyToManyField(PersonalCocina, blank=True)
+    clientes = models.ManyToManyField(Cliente, blank=True)
     pedidos = models.ManyToManyField(Pedido, blank=True)
     mesas = models.ManyToManyField('Mesa', blank=True)
     menu = models.OneToOneField('Menu', on_delete=models.CASCADE, null=True, blank=True)
@@ -297,7 +300,7 @@ class Restaurante(InteraccionCliente):
     def agregar_mesero(self, nombre: str, cedula: str, telefono: str):
         mesero = Mesero(nombre=nombre, cedula=cedula, telefono=telefono)
         mesero.save()
-        self.meseros.add(mesero)
+        self.empleados.add(mesero)
 
     def agregar_personal_cocina(self, nombre: str, cedula: str, telefono: str):
         personal_cocina = PersonalCocina(nombre=nombre, cedula=cedula, telefono=telefono)
